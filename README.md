@@ -14,7 +14,7 @@ also, naturally, depends on TextraTypist. It has no other dependencies of its ow
 Using Maven Central:
 
 ```gradle
-implementation 'com.github.tommyettinger:freetypist:1.0.1'
+implementation 'com.github.tommyettinger:freetypist:1.1.0'
 ```
 
 Using JitPack:
@@ -31,6 +31,14 @@ and
 [FreeTypistSkinLoader.java](src/main/java/com/github/tommyettinger/freetypist/FreeTypistSkinLoader.java),
 into your own project, which is probably the easiest route. This is what TextraTypist does for its tests. You
 still will need the FreeType dependencies, including its platform dependencies.
+
+# Quirks
+
+You might have to add or remove padding from Table `Cell`s/`Container`s that have `TextraLabel`s or `TypingLabel`s in
+them, if the dimensions of that cell or container are determined by the label. In particular, using
+`someCell.padBottom(-myFont.descent);` may be all you need, and this may only be needed for some FreeType fonts. It
+looks like FreeType handles some positions differently from FontWriter, which is what the .dat fonts distributed in
+TextraTypist's `KnownFonts` used most of the time. 
 
 # History
 
