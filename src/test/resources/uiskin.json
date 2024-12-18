@@ -9,7 +9,7 @@ Color: {
 "com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator": {
 	default-font: {
 		font: LeagueSpartan-Bold.otf,
-		size: 36,
+		size: 20,
 		mono: false,
 		color: white,
 		gamma: 1.8,
