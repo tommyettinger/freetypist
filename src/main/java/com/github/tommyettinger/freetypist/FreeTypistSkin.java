@@ -98,7 +98,13 @@ public class FreeTypistSkin extends FWSkin {
 
                 path = fontFile.path();
 
-                boolean fw = path.endsWith(".json");
+                boolean lzb = path.endsWith(".dat");
+                boolean js = path.endsWith(".json");
+                boolean ubj = path.endsWith(".ubj");
+                boolean jslzma = path.endsWith(".json.lzma");
+                boolean ublzma = path.endsWith(".ubj.lzma");
+                boolean fw = lzb || js || ubj || jslzma || ublzma;
+
                 float scaledSize = json.readValue("scaledSize", float.class, -1f, jsonData);
                 float xAdjust = json.readValue("xAdjust", float.class, 0f, jsonData);
                 float yAdjust = json.readValue("yAdjust", float.class, 0f, jsonData);
@@ -115,7 +121,7 @@ public class FreeTypistSkin extends FWSkin {
                     Array<TextureRegion> regions = skin.getRegions(regionName);
                     if (regions != null && regions.notEmpty()) {
                         if(fw)
-                            font = new Font(path, regions.first(), xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs, true);
+                            font = new Font(fontFile, regions.first(), xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs, true);
                         else
                             font = new Font(path, regions, Font.DistanceFieldType.STANDARD, xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs);
                     } else {
@@ -123,7 +129,7 @@ public class FreeTypistSkin extends FWSkin {
                         if (region != null)
                         {
                             if(fw)
-                                font = new Font(path, region, xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs, true);
+                                font = new Font(fontFile, region, xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs, true);
                             else
                                 font = new Font(path, region, Font.DistanceFieldType.STANDARD, xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs);
                         }
@@ -131,7 +137,7 @@ public class FreeTypistSkin extends FWSkin {
                             FileHandle imageFile = Gdx.files.internal(path).sibling(regionName + ".png");
                             if (imageFile.exists()) {
                                 if(fw)
-                                    font = new Font(path, new TextureRegion(new Texture(imageFile)), xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs, true);
+                                    font = new Font(fontFile, new TextureRegion(new Texture(imageFile)), xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs, true);
                                 else
                                     font = new Font(path, new TextureRegion(new Texture(imageFile)), Font.DistanceFieldType.STANDARD, xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs);
                             } else {
@@ -147,7 +153,7 @@ public class FreeTypistSkin extends FWSkin {
                     if (scaledSize != -1) font.scaleHeightTo(scaledSize);
                     return font;
                 } catch (RuntimeException ex) {
-                    throw new SerializationException("Error loading bitmap font: " + path, ex);
+                    throw new SerializationException("Error loading Font: " + path, ex);
                 }
             }
         });
@@ -161,13 +167,18 @@ public class FreeTypistSkin extends FWSkin {
                 if (!fontFile.exists()) throw new SerializationException("Font file not found: " + fontFile);
 
                 boolean lzb = "dat".equalsIgnoreCase(fontFile.extension());
-                boolean fw = "json".equalsIgnoreCase(fontFile.extension());
+                boolean js = "json".equalsIgnoreCase(fontFile.extension());
+                boolean ubj = "ubj".equalsIgnoreCase(fontFile.extension());
+                boolean jslzma = ".json.lzma".equalsIgnoreCase(fontFile.name().substring(fontFile.name().length() - 10));
+                boolean ublzma = ".ubj.lzma".equalsIgnoreCase(fontFile.name().substring(fontFile.name().length() - 9));
+                boolean fw = lzb || js || ubj || jslzma || ublzma;
 
                 float scaledSize = json.readValue("scaledSize", float.class, -1f, jsonData);
                 Boolean flip = json.readValue("flip", Boolean.class, false, jsonData);
                 Boolean markupEnabled = json.readValue("markupEnabled", Boolean.class, false, jsonData);
-                // This defaults to true if loading from .fnt, or false if loading from .json :
-                Boolean useIntegerPositions = json.readValue("useIntegerPositions", Boolean.class, !(fw || lzb), jsonData);
+                // This defaults to false, which is not what Skin normally defaults to.
+                // You can set it to true if you expect a BitmapFont to be used at pixel-perfect 100% zoom only.
+                Boolean useIntegerPositions = json.readValue("useIntegerPositions", Boolean.class, false, jsonData);
                 float xAdjust = json.readValue("xAdjust", float.class, 0f, jsonData);
                 float yAdjust = json.readValue("yAdjust", float.class, 0f, jsonData);
                 float widthAdjust = json.readValue("widthAdjust", float.class, 0f, jsonData);
@@ -181,7 +192,7 @@ public class FreeTypistSkin extends FWSkin {
                     Font font;
                     Array<TextureRegion> regions = skin.getRegions(regionName);
                     if (regions != null && regions.notEmpty()) {
-                        if(fw || lzb) {
+                        if(fw) {
                             bitmapFont = BitmapFontSupport.loadStructuredJson(fontFile, regions.first(), flip);
                             font = new Font(fontFile, regions.first(), xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs, true);
                         }
@@ -193,7 +204,7 @@ public class FreeTypistSkin extends FWSkin {
                         TextureRegion region = skin.optional(regionName, TextureRegion.class);
                         if (region != null)
                         {
-                            if(fw || lzb) {
+                            if(fw) {
                                 bitmapFont = BitmapFontSupport.loadStructuredJson(fontFile, region, flip);
                                 font = new Font(fontFile, region, xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs, true);
                             }
@@ -206,7 +217,7 @@ public class FreeTypistSkin extends FWSkin {
                             FileHandle imageFile = fontFile.sibling(regionName + ".png");
                             if (imageFile.exists()) {
                                 region = new TextureRegion(new Texture(imageFile));
-                                if(fw || lzb) {
+                                if(fw) {
                                     bitmapFont = BitmapFontSupport.loadStructuredJson(fontFile, region, flip);
                                     font = new Font(fontFile, region, xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs, true);
                                 } else {
@@ -214,7 +225,7 @@ public class FreeTypistSkin extends FWSkin {
                                     font = new Font(path, region, Font.DistanceFieldType.STANDARD, xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs);
                                 }
                             } else {
-                                if(fw || lzb)
+                                if(fw)
                                     throw new RuntimeException("Missing image file or TextureRegion.");
                                 else {
                                     bitmapFont = new BitmapFont(fontFile, flip);
@@ -226,9 +237,12 @@ public class FreeTypistSkin extends FWSkin {
                     bitmapFont.getData().markupEnabled = markupEnabled;
                     bitmapFont.setUseIntegerPositions(useIntegerPositions);
                     font.useIntegerPositions(useIntegerPositions);
-                    // Scaled size is the desired cap height to scale the font to.
+                    // For BitmapFont, scaled size is the desired cap height to scale the font to.
+                    // For Font, scaled size is the desired line height to scale the font to.
+                    // These generally do not exactly agree, but we can get close enough by using a
+                    // smaller scale for the BitmapFont.
                     if (scaledSize != -1) {
-                        bitmapFont.getData().setScale(scaledSize / bitmapFont.getCapHeight());
+                        bitmapFont.getData().setScale(scaledSize / bitmapFont.getLineHeight());
                         font.scaleHeightTo(scaledSize);
                     }
 
@@ -236,7 +250,7 @@ public class FreeTypistSkin extends FWSkin {
 
                     return bitmapFont;
                 } catch (RuntimeException ex) {
-                    throw new SerializationException("Error loading bitmap font: " + fontFile, ex);
+                    throw new SerializationException("Error loading BitmapFont: " + fontFile, ex);
                 }
             }
         });
@@ -462,6 +476,23 @@ public class FreeTypistSkin extends FWSkin {
                 stt.disabledFontColor = s2d.disabledFontColor;
                 stt.overFontColor = s2d.overFontColor;
                 skin.add(jsonData.name, stt, Styles.SelectBoxStyle.class);
+                return s2d;
+            }
+        });
+
+        json.setSerializer(TextField.TextFieldStyle.class, new Json.ReadOnlySerializer<TextField.TextFieldStyle>() {
+            @Override
+            public TextField.TextFieldStyle read(Json json, JsonValue jsonData, Class type) {
+                TextField.TextFieldStyle s2d = new TextField.TextFieldStyle();
+                json.readFields(s2d, jsonData);
+                Styles.TextFieldStyle stt = new Styles.TextFieldStyle(skin.get(json.readValue("font", String.class, "default-font", jsonData), Font.class),
+                        s2d.fontColor, s2d.cursor, s2d.selection, s2d.background);
+                stt.messageFontColor = s2d.messageFontColor;
+                stt.focusedFontColor = s2d.focusedFontColor;
+                stt.disabledFontColor = s2d.disabledFontColor;
+                stt.focusedBackground = s2d.focusedBackground;
+                stt.disabledBackground = s2d.disabledBackground;
+                skin.add(jsonData.name, stt, Styles.TextFieldStyle.class);
                 return s2d;
             }
         });
