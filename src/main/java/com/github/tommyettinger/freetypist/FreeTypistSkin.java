@@ -28,25 +28,25 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.SerializationException;
+import com.github.tommyettinger.textra.BitmapFontSupport;
 import com.github.tommyettinger.textra.FWSkin;
 import com.github.tommyettinger.textra.Font;
-import com.github.tommyettinger.textra.BitmapFontSupport;
 import com.github.tommyettinger.textra.Styles;
 
 /**
  * A sublass of {@link Skin} (via {@link FWSkin}) that includes a serializer for FreeType fonts from JSON. These JSON
- * files are typically exported by Skin Composer. This can also load Font and BitmapFont objects from .fnt, .json, or
- * .dat files made by FontWriter. Because this extends FWSkin, it is also important when using the styles in
- * {@link Styles}, since it allows reading in a skin JSON's styles both as the scene2d.ui format and as styles for
- * TextraTypist widgets. See the
+ * files are typically exported by Skin Composer. This can also load Font and BitmapFont objects from .fnt, .json, .dat,
+ * .ubj, .json.lzma, and .ubj.lzma files made by FontWriter. Because this extends FWSkin, it is also important when
+ * using the styles in {@link Styles}, since it allows reading in a skin JSON's styles both as the scene2d.ui format and
+ * as styles for TextraTypist widgets. See the
  * <a href="https://github.com/raeleus/skin-composer/wiki/Creating-FreeType-Fonts#using-a-custom-serializer">Skin Composer documentation</a>.
- * If you are using Asset Manager, use {@link FreeTypistSkinLoader}
+ * If you are using Asset Manager, use {@link FreeTypistSkinLoader}.
  */
 public class FreeTypistSkin extends FWSkin {
     /** Creates an empty skin. */
     public FreeTypistSkin() {
     }
-    
+
     /** Creates a skin containing the resources in the specified skin JSON file. If a file in the same directory with a ".atlas"
      * extension exists, it is loaded as a {@link TextureAtlas} and the texture regions added to the skin. The atlas is
      * automatically disposed when the skin is disposed.
@@ -54,9 +54,9 @@ public class FreeTypistSkin extends FWSkin {
      */
     public FreeTypistSkin(FileHandle skinFile) {
         super(skinFile);
-        
+
     }
-    
+
     /** Creates a skin containing the resources in the specified skin JSON file and the texture regions from the specified atlas.
      * The atlas is automatically disposed when the skin is disposed.
      * @param skinFile The JSON file to be read.
@@ -65,7 +65,7 @@ public class FreeTypistSkin extends FWSkin {
     public FreeTypistSkin(FileHandle skinFile, TextureAtlas atlas) {
         super(skinFile, atlas);
     }
-    
+
     /** Creates a skin containing the texture regions from the specified atlas. The atlas is automatically disposed when the skin
      * is disposed.
      * @param atlas The texture atlas to be associated with the {@link Skin}.
@@ -73,9 +73,9 @@ public class FreeTypistSkin extends FWSkin {
     public FreeTypistSkin(TextureAtlas atlas) {
         super(atlas);
     }
-    
+
     /**
-     * Overrides the default JSON loader to process FreeType fonts and .dat/.json from a Skin JSON.
+     * Overrides the default JSON loader to process FreeType fonts from a Skin JSON.
      * This also allows loading both standard scene2d.ui styles and styles for TextraTypist
      * widgets from the same styles a skin JSON file normally uses.
      *
@@ -98,11 +98,11 @@ public class FreeTypistSkin extends FWSkin {
 
                 path = fontFile.path();
 
-                boolean lzb = path.endsWith(".dat");
-                boolean js = path.endsWith(".json");
-                boolean ubj = path.endsWith(".ubj");
-                boolean jslzma = path.endsWith(".json.lzma");
-                boolean ublzma = path.endsWith(".ubj.lzma");
+                boolean lzb = "dat".equalsIgnoreCase(fontFile.extension());
+                boolean js = "json".equalsIgnoreCase(fontFile.extension());
+                boolean ubj = "ubj".equalsIgnoreCase(fontFile.extension());
+                boolean jslzma = fontFile.name().length() > 10 && ".json.lzma".equalsIgnoreCase(fontFile.name().substring(fontFile.name().length() - 10));
+                boolean ublzma = fontFile.name().length() > 9 && ".ubj.lzma".equalsIgnoreCase(fontFile.name().substring(fontFile.name().length() - 9));
                 boolean fw = lzb || js || ubj || jslzma || ublzma;
 
                 float scaledSize = json.readValue("scaledSize", float.class, -1f, jsonData);
@@ -110,12 +110,15 @@ public class FreeTypistSkin extends FWSkin {
                 float yAdjust = json.readValue("yAdjust", float.class, 0f, jsonData);
                 float widthAdjust = json.readValue("widthAdjust", float.class, 0f, jsonData);
                 float heightAdjust = json.readValue("heightAdjust", float.class, 0f, jsonData);
+                // This defaults to false, which is not what Skin normally defaults to.
                 Boolean useIntegerPositions = json.readValue("useIntegerPositions", Boolean.class, false, jsonData);
+                // This defaults to true, because anything FontWriter produces is compatible with makeGridGlyphs.
                 Boolean makeGridGlyphs = json.readValue("makeGridGlyphs", Boolean.class, true, jsonData);
 
 
-                // Use a region with the same name as the font, else use a PNG file in the same directory as the FNT file.
-                String regionName = path.substring(Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'))+1, path.lastIndexOf('.'));
+                // Use a region with the same name as the font, else use a PNG file in the same directory as the font file.
+                int nameStart = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'))+1;
+                String regionName = path.substring(nameStart, Math.max(0, path.indexOf('.', nameStart)));
                 try {
                     Font font;
                     Array<TextureRegion> regions = skin.getRegions(regionName);
@@ -153,7 +156,7 @@ public class FreeTypistSkin extends FWSkin {
                     if (scaledSize != -1) font.scaleHeightTo(scaledSize);
                     return font;
                 } catch (RuntimeException ex) {
-                    throw new SerializationException("Error loading Font: " + path, ex);
+                    throw new SerializationException("Error loading bitmap font: " + path, ex);
                 }
             }
         });
@@ -169,13 +172,13 @@ public class FreeTypistSkin extends FWSkin {
                 boolean lzb = "dat".equalsIgnoreCase(fontFile.extension());
                 boolean js = "json".equalsIgnoreCase(fontFile.extension());
                 boolean ubj = "ubj".equalsIgnoreCase(fontFile.extension());
-                boolean jslzma = ".json.lzma".equalsIgnoreCase(fontFile.name().substring(fontFile.name().length() - 10));
-                boolean ublzma = ".ubj.lzma".equalsIgnoreCase(fontFile.name().substring(fontFile.name().length() - 9));
+                boolean jslzma = fontFile.name().length() > 10 && ".json.lzma".equalsIgnoreCase(fontFile.name().substring(fontFile.name().length() - 10));
+                boolean ublzma = fontFile.name().length() > 9 && ".ubj.lzma".equalsIgnoreCase(fontFile.name().substring(fontFile.name().length() - 9));
                 boolean fw = lzb || js || ubj || jslzma || ublzma;
 
                 float scaledSize = json.readValue("scaledSize", float.class, -1f, jsonData);
                 Boolean flip = json.readValue("flip", Boolean.class, false, jsonData);
-                Boolean markupEnabled = json.readValue("markupEnabled", Boolean.class, false, jsonData);
+                Boolean markupEnabled = json.readValue("markupEnabled", Boolean.class, true, jsonData);
                 // This defaults to false, which is not what Skin normally defaults to.
                 // You can set it to true if you expect a BitmapFont to be used at pixel-perfect 100% zoom only.
                 Boolean useIntegerPositions = json.readValue("useIntegerPositions", Boolean.class, false, jsonData);
@@ -183,10 +186,12 @@ public class FreeTypistSkin extends FWSkin {
                 float yAdjust = json.readValue("yAdjust", float.class, 0f, jsonData);
                 float widthAdjust = json.readValue("widthAdjust", float.class, 0f, jsonData);
                 float heightAdjust = json.readValue("heightAdjust", float.class, 0f, jsonData);
+                // This defaults to true, because anything FontWriter produces is compatible with makeGridGlyphs.
                 Boolean makeGridGlyphs = json.readValue("makeGridGlyphs", Boolean.class, true, jsonData);
 
-                // Use a region with the same name as the font, else use a PNG file in the same directory as the FNT file.
-                String regionName = fontFile.nameWithoutExtension();
+                // Use a region with the same name as the font, else use a PNG file in the same directory as the font file.
+                int nameStart = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'))+1;
+                String regionName = path.substring(nameStart, Math.max(0, path.indexOf('.', nameStart)));
                 try {
                     BitmapFont bitmapFont;
                     Font font;
@@ -250,7 +255,7 @@ public class FreeTypistSkin extends FWSkin {
 
                     return bitmapFont;
                 } catch (RuntimeException ex) {
-                    throw new SerializationException("Error loading BitmapFont: " + fontFile, ex);
+                    throw new SerializationException("Error loading bitmap font: " + fontFile, ex);
                 }
             }
         });
@@ -274,6 +279,23 @@ public class FreeTypistSkin extends FWSkin {
                         json.readValue("magFilter", String.class, "Linear", jsonData));
                 jsonData.remove("magFilter");
 
+                Boolean markupEnabled = json.readValue("markupEnabled", Boolean.class, true, jsonData);
+                jsonData.remove("markupEnabled");
+                // This defaults to false, which is not what Skin normally defaults to.
+                // You can set it to true if you expect a BitmapFont to be used at pixel-perfect 100% zoom only.
+                Boolean useIntegerPositions = json.readValue("useIntegerPositions", Boolean.class, false, jsonData);
+                jsonData.remove("useIntegerPositions");
+                float xAdjust = json.readValue("xAdjust", float.class, 0f, jsonData);
+                jsonData.remove("xAdjust");
+                float yAdjust = json.readValue("yAdjust", float.class, 0f, jsonData);
+                jsonData.remove("yAdjust");
+                float widthAdjust = json.readValue("widthAdjust", float.class, 0f, jsonData);
+                jsonData.remove("widthAdjust");
+                float heightAdjust = json.readValue("heightAdjust", float.class, 0f, jsonData);
+                jsonData.remove("heightAdjust");
+                Boolean makeGridGlyphs = json.readValue("makeGridGlyphs", Boolean.class, true, jsonData);
+                jsonData.remove("makeGridGlyphs");
+
                 FreeTypeFontGenerator.FreeTypeFontParameter parameter = json.readValue(FreeTypeFontGenerator.FreeTypeFontParameter.class, jsonData);
                 parameter.hinting = hinting;
                 parameter.minFilter = minFilter;
@@ -281,8 +303,10 @@ public class FreeTypistSkin extends FWSkin {
                 FreeTypeFontGenerator generator = new FreeTypeFontGenerator(skinFile.sibling(path));
                 FreeTypeFontGenerator.setMaxTextureSize(FreeTypeFontGenerator.NO_MAXIMUM);
                 BitmapFont font = generator.generateFont(parameter);
+                font.getData().markupEnabled = markupEnabled;
+                font.setUseIntegerPositions(useIntegerPositions);
                 skin.add(jsonData.name, font);
-                skin.add(jsonData.name, new Font(font));
+                skin.add(jsonData.name, new Font(font, Font.DistanceFieldType.STANDARD, xAdjust, yAdjust, widthAdjust, heightAdjust, makeGridGlyphs));
                 if (parameter.incremental) {
                     generator.dispose();
                     return null;
@@ -476,23 +500,6 @@ public class FreeTypistSkin extends FWSkin {
                 stt.disabledFontColor = s2d.disabledFontColor;
                 stt.overFontColor = s2d.overFontColor;
                 skin.add(jsonData.name, stt, Styles.SelectBoxStyle.class);
-                return s2d;
-            }
-        });
-
-        json.setSerializer(TextField.TextFieldStyle.class, new Json.ReadOnlySerializer<TextField.TextFieldStyle>() {
-            @Override
-            public TextField.TextFieldStyle read(Json json, JsonValue jsonData, Class type) {
-                TextField.TextFieldStyle s2d = new TextField.TextFieldStyle();
-                json.readFields(s2d, jsonData);
-                Styles.TextFieldStyle stt = new Styles.TextFieldStyle(skin.get(json.readValue("font", String.class, "default-font", jsonData), Font.class),
-                        s2d.fontColor, s2d.cursor, s2d.selection, s2d.background);
-                stt.messageFontColor = s2d.messageFontColor;
-                stt.focusedFontColor = s2d.focusedFontColor;
-                stt.disabledFontColor = s2d.disabledFontColor;
-                stt.focusedBackground = s2d.focusedBackground;
-                stt.disabledBackground = s2d.disabledBackground;
-                skin.add(jsonData.name, stt, Styles.TextFieldStyle.class);
                 return s2d;
             }
         });
