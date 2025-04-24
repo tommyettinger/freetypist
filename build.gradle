@@ -61,6 +61,9 @@ compileTestJava {
     }
 }
 
+apply plugin: 'idea'
+idea.module.excludeDirs += [file("docs/")]
+
 // JavaDocs will be published inside the docs/freetypist/ folder.
 javadoc.destinationDir = file('docs/freetypist/apidocs')
 
