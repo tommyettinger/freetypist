@@ -83,7 +83,9 @@ repositories {
 }
 
 dependencies {
+    //noinspection GDXOutdatedVersionGradleGroovy
     api "com.badlogicgames.gdx:gdx:$gdxVersion"
+    //noinspection GDXOutdatedVersionGradleGroovy
     api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
 	api "com.github.tommyettinger:textratypist:$textratypistVersion"
     testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
