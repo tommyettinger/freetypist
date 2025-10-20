@@ -27,6 +27,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.github.tommyettinger.textra.*;
 
@@ -50,6 +51,7 @@ public class ScrollPaneUITest extends InputAdapter implements ApplicationListene
 				"Let's go!{ENDHIGHLIGHT}", font);
 		typingLabel.setSelectable(true);
 		typingLabel.setWrap(true);
+        typingLabel.setAlignment(Align.topLeft);
 		typingLabel.setTypingListener(new TypingAdapter(){
 			@Override
 			public void event(String event) {
@@ -57,7 +59,7 @@ public class ScrollPaneUITest extends InputAdapter implements ApplicationListene
 			}
 		});
 //		root.add(typingLabel);
-		ScrollPane scrollPane = new ScrollPane(new Container<>(typingLabel).width(500).padBottom(-font.descent));
+		ScrollPane scrollPane = new ScrollPane(new Container<>(typingLabel).width(500).padBottom(font.cellHeight));
 		scrollPane.setScrollingDisabled(true, false);
 		Container<ScrollPane> holder = new Container<>(scrollPane).height(70);
 		root.add(holder);
