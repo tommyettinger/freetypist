@@ -78,14 +78,12 @@ repositories {
     mavenLocal()
     mavenCentral()
     google()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://central.sonatype.com/repository/maven-snapshots/' }
     maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    //noinspection GDXOutdatedVersionGradleGroovy
     api "com.badlogicgames.gdx:gdx:$gdxVersion"
-    //noinspection GDXOutdatedVersionGradleGroovy
     api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
 	api "com.github.tommyettinger:textratypist:$textratypistVersion"
     testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
