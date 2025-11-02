@@ -10,18 +10,18 @@ load both the .dat and .fnt files distributed in TextraTypist's `knownFonts/` fo
 This depends on FreeType, so you must have the appropriate platform dependencies for that, if you don't already. It
 also, naturally, depends on TextraTypist. It has no other dependencies of its own.
 
-Versions here are linked to TextraTypist versions, so version `2.2.1.0` uses TextraTypist `2.2.1`, with a bugfix or
+Versions here are linked to TextraTypist versions, so version `2.2.2.0` uses TextraTypist `2.2.2`, with a bugfix or
 other patch applied to append `.0`. In the case of the earlier `1.1.0.1`, that patch allows SelectBoxStyle to be read
 in, and fixed some optional properties that other styles may have in a Skin JSON file. That version still depends on the
 same version of TextraTypist, `1.1.0`, as the release before it. When a new TextraTypist version comes out, such as
-`2.2.2`, then the corresponding version of FreeTypist would be `2.2.2.0`.
+`2.2.3`, then the corresponding version of FreeTypist would be `2.2.3.0`.
 
 # Dependency
 
 Using Maven Central:
 
 ```gradle
-implementation 'com.github.tommyettinger:freetypist:2.2.1.0'
+implementation 'com.github.tommyettinger:freetypist:2.2.2.0'
 ```
 
 Using JitPack:
@@ -50,9 +50,13 @@ TextraTypist's `KnownFonts` used most of the time.
 # History
 
 This project was previously a subproject of the [textratypist](https://github.com/tommyettinger/textratypist) repo, but
-with the way that that was structured, I had some real issues when releasing. That's why the release numbersing was
+with the way that that was structured, I had some real issues when releasing. That's why the release numbering was
 sketchy for a while early on. FreeTypist was moved to its own repo because it doesn't actually depend on the latest
 TextraTypist commit anyway, and it can reasonably be its own small project.
+
+The code here has been mostly unchanged except to update TextraTypist versions, but when that also updates libGDX,
+sometimes there are other changes involved. There were also some changes to how sizing works in version 2.2.2.0 here,
+matching changes in TextraTypist 2.2.2 for all of its Skin types.
 
 # License
 
