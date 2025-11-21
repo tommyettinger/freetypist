@@ -10,18 +10,18 @@ load both the .dat and .fnt files distributed in TextraTypist's `knownFonts/` fo
 This depends on FreeType, so you must have the appropriate platform dependencies for that, if you don't already. It
 also, naturally, depends on TextraTypist. It has no other dependencies of its own.
 
-Versions here are linked to TextraTypist versions, so version `2.2.4.0` uses TextraTypist `2.2.4`, with a bugfix or
+Versions here are linked to TextraTypist versions, so version `2.2.5.0` uses TextraTypist `2.2.5`, with a bugfix or
 other patch applied to append `.0`. In the case of the earlier `1.1.0.1`, that patch allows SelectBoxStyle to be read
 in, and fixed some optional properties that other styles may have in a Skin JSON file. That version still depends on the
 same version of TextraTypist, `1.1.0`, as the release before it. When a new TextraTypist version comes out, such as
-`2.2.5`, then the corresponding version of FreeTypist would be `2.2.5.0`.
+`2.2.6`, then the corresponding version of FreeTypist would be `2.2.6.0`.
 
 # Dependency
 
 Using Maven Central:
 
 ```gradle
-implementation 'com.github.tommyettinger:freetypist:2.2.4.0'
+implementation 'com.github.tommyettinger:freetypist:2.2.5.0'
 ```
 
 Using JitPack:
@@ -44,8 +44,8 @@ still will need the FreeType dependencies, including its platform dependencies.
 You might have to add or remove padding from Table `Cell`s/`Container`s that have `TextraLabel`s or `TypingLabel`s in
 them, if the dimensions of that cell or container are determined by the label. In particular, using
 `someCell.padBottom(-myFont.descent);` may be all you need, and this may only be needed for some FreeType fonts. It
-looks like FreeType handles some positions differently from FontWriter, which is what the .dat fonts distributed in
-TextraTypist's `KnownFonts` used most of the time.
+looks like FreeType handles some positions differently from FontWriter, which is what the .json.lzma fonts distributed
+in TextraTypist's `KnownFonts` were created with most of the time. This should 
 
 # History
 
@@ -56,7 +56,7 @@ TextraTypist commit anyway, and it can reasonably be its own small project.
 
 The code here has been mostly unchanged except to update TextraTypist versions, but when that also updates libGDX,
 sometimes there are other changes involved. There were also some changes to how sizing works in version 2.2.2.0 here,
-matching changes in TextraTypist 2.2.2 for all of its Skin types.
+matching changes in TextraTypist 2.2.2 for all of its Skin types. Version 2.2.4.0 included some fixes for styles.
 
 # License
 
