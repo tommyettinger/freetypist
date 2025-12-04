@@ -2,11 +2,11 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.34.0'
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.35.0'
     }
 }
 
@@ -16,9 +16,9 @@ apply plugin: 'com.vanniktech.maven.publish'
 //Obviously, change the next line to match your project name.
 def projectName = 'freetypist'
 
-group 'com.github.tommyettinger'
+group = 'com.github.tommyettinger'
 
-version "$VERSION_NAME" // You can set the version in gradle.properties .
+version = "$VERSION_NAME" // You can set the version in gradle.properties .
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
@@ -78,8 +78,8 @@ repositories {
     mavenLocal()
     mavenCentral()
     google()
-    maven { url 'https://central.sonatype.com/repository/maven-snapshots/' }
-    maven { url 'https://jitpack.io' }
+    maven { url = 'https://central.sonatype.com/repository/maven-snapshots/' }
+    maven { url = 'https://jitpack.io' }
 }
 
 dependencies {
