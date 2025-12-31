@@ -61,6 +61,10 @@ compileTestJava {
     }
 }
 
+tasks.withType(AbstractTestTask).configureEach {
+    failOnNoDiscoveredTests = false
+}
+
 apply plugin: 'idea'
 idea.module.excludeDirs += [file("docs/")]
 
