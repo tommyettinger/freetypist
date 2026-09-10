@@ -24,8 +24,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.CpuSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -35,7 +35,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.github.tommyettinger.freetypist.FreeTypistSkin;
 import com.github.tommyettinger.textra.*;
 
 public class TypingUITest extends InputAdapter implements ApplicationListener {
@@ -52,6 +51,7 @@ public class TypingUITest extends InputAdapter implements ApplicationListener {
 	Texture texture1;
 	Texture texture2;
 	TypingLabel fpsLabel;
+	TransformContainer<TypingLabel> fpsContainer;
 //	GLProfiler profiler;
 
     public static Font getStandardFamily() {
@@ -100,7 +100,7 @@ public class TypingUITest extends InputAdapter implements ApplicationListener {
 			if(f != null)
 				KnownFonts.addEmoji(f);
 		}
-		stage = new Stage(new ScreenViewport());
+		stage = new Stage(new ScreenViewport(), new CpuSpriteBatch());
 		Gdx.input.setInputProcessor(stage);
 
 //		stage.setDebugAll(true);
@@ -173,6 +173,7 @@ public class TypingUITest extends InputAdapter implements ApplicationListener {
 		SplitPane splitPane = new SplitPane(scrollPane, rightSideTable, false, skin, "default-horizontal");
 		fpsLabel = new TypingLabel("fps: 0    [^][SKY][[citation needed]", skin, font);
 		fpsLabel.setAlignment(Align.center);
+		fpsContainer = new TransformContainer<>(fpsLabel);
 		// configures an example of a TextField in password mode.
 		final TypingLabel passwordLabel = new TypingLabel("[@Medieval]Textfield in [~]secure[ ] password mode: ", skin, font);
 		final TextField passwordTextField = new TextField("", skin);
@@ -218,7 +219,7 @@ public class TypingUITest extends InputAdapter implements ApplicationListener {
 		window.add(passwordLabel).align(Align.topLeft).colspan(2);
 		window.add(passwordTextField).minWidth(100).expandX().fillX().colspan(2);
 		window.row();
-		window.add(fpsLabel).align(Align.topLeft).colspan(4);
+		window.add(fpsContainer).align(Align.topLeft).colspan(4);
 		window.pack();
 
 		// stage.addActor(new Button("Behind Window", skin));
@@ -267,7 +268,7 @@ public class TypingUITest extends InputAdapter implements ApplicationListener {
 		for (; i < 5; i++) {
 			fpsLabel.setInWorkingLayout(5+i, 0L);
 		}
-		fpsLabel.setRotation(20f + 20f * MathUtils.sinDeg((TimeUtils.millis() & 0xFFFFFL) * 0.1f));
+		fpsContainer.setRotation(20f + 20f * MathUtils.sinDeg((TimeUtils.millis() & 0xFFFFFL) * 0.1f));
 		stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
 		stage.draw();
 //		if(Gdx.input.isKeyJustPressed(Keys.SPACE) && profiler.isEnabled())
