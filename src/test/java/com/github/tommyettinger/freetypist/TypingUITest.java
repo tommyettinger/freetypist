@@ -57,7 +57,7 @@ public class TypingUITest extends InputAdapter implements ApplicationListener {
     public static Font getStandardFamily() {
         Font.FontFamily family = new Font.FontFamily(
             new String[]{"Serif", "Humanist", "Medieval", },
-            new Font[]{KnownFonts.getGentium(), KnownFonts.getYanoneKaffeesatz(),
+            new Font[]{KnownFonts.getGentium(Font.DistanceFieldType.SDF), KnownFonts.getYanoneKaffeesatz(),
                 KnownFonts.getKingthingsFoundation(),});
         return family.connected[0].setFamily(family);
     }
